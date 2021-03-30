@@ -13,6 +13,7 @@ class _GenerateQRState extends State<GenerateQR> {
   String qrData = "https://github.com/ChinmayMunje";
   final _nome = TextEditingController();
   final _telefone = TextEditingController();
+  final _modelo = TextEditingController();
   final _servico = TextEditingController();
   final _valor = TextEditingController();
   final _validade = TextEditingController();
@@ -109,6 +110,18 @@ class _GenerateQRState extends State<GenerateQR> {
                 ),
                 SizedBox(height: 10),
                 TextFormField(
+                  controller: _modelo,
+                  validator: (value) {
+                    if (value.isEmpty) return 'Obrigatório';
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                      hintText: "Modelo:",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10))),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
                   controller: _servico,
                   validator: (value) {
                     if (value.isEmpty) return 'Obrigatório';
@@ -168,6 +181,7 @@ class _GenerateQRState extends State<GenerateQR> {
                           'nome': _nome.text,
                           'telefone': _telefone.text,
                           'servico': _servico.text,
+                          'modelo': _modelo.text,
                           'valor': _valor.text,
                           'validade': _validade.text,
                         });

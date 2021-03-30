@@ -10,7 +10,7 @@ class ScanQR extends StatefulWidget {
 }
 
 class _ScanQRState extends State<ScanQR> {
-  String qrCodeResult = "Nenhum resultado";
+  String qrCodeResult = '0';
 
   var db = FirebaseFirestore.instance;
 
@@ -21,10 +21,13 @@ class _ScanQRState extends State<ScanQR> {
     print(result.data()['nome']);
   }
 
-  // @override
-  // void initState() async {
-  //   super.initState();
-  // }
+  //Future<DocumentSnapshot> qrCode;
+
+  @override
+  void initState() {
+    //qrCode = db.collection('qr_codes').doc(qrCodeResult).get();
+    super.initState();
+  }
 
   // @override
   // void dispose() {
@@ -33,8 +36,9 @@ class _ScanQRState extends State<ScanQR> {
 
   @override
   Widget build(BuildContext context) {
-    var snapshots =
-        db.collection('qr_codes').doc(qrCodeResult).get().asStream();
+    var snapshots = db.collection('qr_codes').doc(qrCodeResult).snapshots();
+
+    var snap = db.collection('qr_codes').snapshots();
 
     return Scaffold(
         appBar: AppBar(
@@ -64,13 +68,9 @@ class _ScanQRState extends State<ScanQR> {
               //Text(item['nome']),
               StreamBuilder(
                   stream: snapshots,
-                  builder: (context, snapshot) {
-                    //print(snapshot.data['nome']);
-                    //var nome = snapshot.data['nome'];
-                    // var tel = snapshot.data['nome'];
-                    // var serv = snapshot.data['nome'];
-                    // var valor = snapshot.data['nome'];
-                    // var validade = snapshot.data['nome'];
+                  builder: (BuildContext context,
+                      AsyncSnapshot<DocumentSnapshot> snapshot) {
+                   
 
                     if (snapshot.hasError) {
                       return Center(
@@ -82,12 +82,49 @@ class _ScanQRState extends State<ScanQR> {
                         child: CircularProgressIndicator(),
                       );
                     }
+                    if (snapshot.data == null) {
+                      return Text('null');
+                    }
+                     if (snapshot.connectionState == ConnectionState.active) {
+                      if (snapshot.data == null) {
+                        return Text('data');
+                      } 
+                    }else{
+                      return Center(child: CircularProgressIndicator(),);
+                    }
+                    var nome = snapshot.data['nome'];
+                    var tel = snapshot.data['telefone'];
+                    var serv = snapshot.data['servico'];
+                    var modelo = snapshot.data['modelo'];
+                    var valor = snapshot.data['valor'];
+                    var validade = snapshot.data['validade'];
                     return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Telefone:'),
-                        Text('Serviço:'),
-                        Text('Valor:'),
-                        Text('Validade:'),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Nome: $nome'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Telefone: $tel'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Modelo: $modelo'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Serviço: $serv'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Valor: R\$$valor'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Validade: $validade'),
+                        ),
                       ],
                     );
                   }),
@@ -96,7 +133,6 @@ class _ScanQRState extends State<ScanQR> {
                 child: SizedBox(),
               ),
 
-              //Button to scan QR code
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.all(15),
@@ -109,10 +145,6 @@ class _ScanQRState extends State<ScanQR> {
                       await BarcodeScanner.scan(); //barcode scnner
                   setState(() {
                     qrCodeResult = codeSanner;
-                    print(codeSanner);
-                    print(qrCodeResult);
-
-                    qr();
                   });
                 },
                 child: Text(
@@ -120,6 +152,9 @@ class _ScanQRState extends State<ScanQR> {
                   style: TextStyle(fontSize: 28),
                 ),
               ),
+
+              //Button to scan QR code
+
               // FlatButton(
               //   padding: EdgeInsets.all(15),
               //   onPressed: () async {
