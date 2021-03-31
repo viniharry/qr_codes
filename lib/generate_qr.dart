@@ -2,7 +2,6 @@ import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 class GenerateQR extends StatefulWidget {
   @override
@@ -10,7 +9,6 @@ class GenerateQR extends StatefulWidget {
 }
 
 class _GenerateQRState extends State<GenerateQR> {
-  String qrData = "https://github.com/ChinmayMunje";
   final _nome = TextEditingController();
   final _telefone = TextEditingController();
   final _modelo = TextEditingController();
@@ -20,22 +18,22 @@ class _GenerateQRState extends State<GenerateQR> {
 
   GlobalKey<FormState> _form = GlobalKey<FormState>();
 
-  var maskDateFormatter = new MaskTextInputFormatter(mask: '##/##/##', filter: { "#": RegExp(r'[0-9]') });
-  var maskPhoneFormatter = new MaskTextInputFormatter(mask: '(##)#####-####', filter: { "#": RegExp(r'[0-9]') });
+  var maskDateFormatter = new MaskTextInputFormatter(
+      mask: '##/##/##', filter: {"#": RegExp(r'[0-9]')});
+  var maskPhoneFormatter = new MaskTextInputFormatter(
+      mask: '(##)#####-####', filter: {"#": RegExp(r'[0-9]')});
 
   String qrCodeResult = "Nenhum Qr Code";
   String qrResult = 'Nenhum Qr Code';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //Appbar having title
       appBar: AppBar(
         title: Text("Gerar Qr Code"),
       ),
       body: Container(
         padding: EdgeInsets.all(20),
         child: SingleChildScrollView(
-          //Scroll view given to Column
           child: Form(
             key: _form,
             child: Column(
@@ -59,8 +57,7 @@ class _GenerateQRState extends State<GenerateQR> {
                         alignment: Alignment.centerRight,
                         child: InkWell(
                           onTap: () async {
-                            String codeSanner =
-                                await BarcodeScanner.scan(); //barcode scnner
+                            String codeSanner = await BarcodeScanner.scan();
                             setState(() {
                               qrCodeResult = codeSanner;
                               print(codeSanner);
@@ -80,11 +77,9 @@ class _GenerateQRState extends State<GenerateQR> {
                   "Dados",
                   style: TextStyle(fontSize: 20),
                 ),
-
-                //TextField for input link
                 TextFormField(
                   controller: _nome,
-                   keyboardType: TextInputType.name,
+                  keyboardType: TextInputType.name,
                   validator: (value) {
                     if (value.isEmpty) return 'Obrigatório';
                     return null;
@@ -97,8 +92,8 @@ class _GenerateQRState extends State<GenerateQR> {
                 SizedBox(height: 10),
                 TextFormField(
                   controller: _telefone,
-                   inputFormatters: [maskPhoneFormatter],
-                   keyboardType: TextInputType.phone,
+                  inputFormatters: [maskPhoneFormatter],
+                  keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value.isEmpty) return 'Obrigatório';
                     return null;
@@ -148,8 +143,8 @@ class _GenerateQRState extends State<GenerateQR> {
                 SizedBox(height: 10),
                 TextFormField(
                   controller: _validade,
-                   inputFormatters: [maskDateFormatter],
-                   keyboardType: TextInputType.datetime,
+                  inputFormatters: [maskDateFormatter],
+                  keyboardType: TextInputType.datetime,
                   validator: (value) {
                     if (value.isEmpty) return 'Obrigatório';
                     return null;
@@ -161,7 +156,6 @@ class _GenerateQRState extends State<GenerateQR> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  //Button for generating QR code
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.all(15),
@@ -170,8 +164,6 @@ class _GenerateQRState extends State<GenerateQR> {
                       ),
                     ),
                     onPressed: () async {
-                      //a little validation for the textfield
-
                       if (_form.currentState.validate()) {
                         await FirebaseFirestore.instance
                             .collection('qr_codes')
@@ -188,10 +180,11 @@ class _GenerateQRState extends State<GenerateQR> {
                         setState(() {
                           qrCodeResult = qrResult;
                         });
-                        
+
                         _nome.clear();
                         _telefone.clear();
                         _servico.clear();
+                        _modelo.clear();
                         _valor.clear();
                         _validade.clear();
                       }
@@ -201,29 +194,6 @@ class _GenerateQRState extends State<GenerateQR> {
                       style: TextStyle(fontSize: 28),
                     ),
                   ),
-                  // FlatButton(
-                  //   onPressed: () async {
-                  //     //a little validation for the textfield
-                  //     if (qrdataFeed.text.isEmpty) {
-                  //       setState(() {
-                  //         qrData = "";
-                  //       });
-                  //     } else {
-                  //       setState(() {
-                  //         qrData = qrdataFeed.text;
-                  //       });
-                  //     }
-                  //   },
-                  //   //Title given on Button
-                  //   child: Text(
-                  //     "Gerar Qr Code",
-                  //     style: TextStyle(color: Colors.indigo[900], fontSize: 28),
-                  //   ),
-                  //   shape: RoundedRectangleBorder(
-                  //     borderRadius: BorderRadius.circular(20),
-                  //     side: BorderSide(color: Colors.indigo[900]),
-                  //   ),
-                  // ),
                 ),
               ],
             ),

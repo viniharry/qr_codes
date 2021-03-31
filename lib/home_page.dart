@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:qr_code_app/scan_qr.dart';
+import 'package:qr_code_app/camera_scan.dart';
 
 import 'generate_qr.dart';
 
@@ -18,10 +18,6 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          //Display Image
-
-          //First Button
-
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.all(15),
@@ -31,14 +27,13 @@ class _HomePageState extends State<HomePage> {
             ),
             onPressed: () {
               Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => ScanQR()));
+                  .push(MaterialPageRoute(builder: (context) => CameraScan()));
             },
             child: Text(
               "Escanear",
               style: TextStyle(fontSize: 28),
             ),
           ),
-
           SizedBox(height: 100),
           ElevatedButton(
             style: ElevatedButton.styleFrom(

@@ -1,48 +1,26 @@
-import 'dart:async';
-
-import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ScanQR extends StatefulWidget {
+  final String id;
+  ScanQR({
+    Key key,
+    @required this.id,
+  }) : super(key: key);
   @override
   _ScanQRState createState() => _ScanQRState();
 }
 
 class _ScanQRState extends State<ScanQR> {
-  String qrCodeResult = '0';
-
   var db = FirebaseFirestore.instance;
-
-  Future qr() async {
-    DocumentSnapshot result =
-        await db.collection('qr_codes').doc(qrCodeResult).get();
-    print(result.id);
-    print(result.data()['nome']);
-  }
-
-  //Future<DocumentSnapshot> qrCode;
-
-  @override
-  void initState() {
-    //qrCode = db.collection('qr_codes').doc(qrCodeResult).get();
-    super.initState();
-  }
-
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {
-    var snapshots = db.collection('qr_codes').doc(qrCodeResult).snapshots();
-
-    var snap = db.collection('qr_codes').snapshots();
+    var snapshots = db.collection('qr_codes').doc(widget.id).snapshots();
 
     return Scaffold(
         appBar: AppBar(
-          title: Text("Ler Qr Code"),
+          title: Text("Resultado"),
         ),
         body: Container(
           padding: EdgeInsets.all(20),
@@ -52,26 +30,19 @@ class _ScanQRState extends State<ScanQR> {
             children: [
               //Message displayed over here
               Text(
-                "Resultado",
+                "Cliente",
                 style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
 
-              Text(
-                qrCodeResult,
-                style: TextStyle(
-                  fontSize: 20.0,
-                ),
-                textAlign: TextAlign.center,
+              SizedBox(
+                height: 50,
               ),
-
               //Text(item['nome']),
               StreamBuilder(
                   stream: snapshots,
                   builder: (BuildContext context,
                       AsyncSnapshot<DocumentSnapshot> snapshot) {
-                   
-
                     if (snapshot.hasError) {
                       return Center(
                         child: Text('Error: ${snapshot.error}'),
@@ -85,12 +56,14 @@ class _ScanQRState extends State<ScanQR> {
                     if (snapshot.data == null) {
                       return Text('null');
                     }
-                     if (snapshot.connectionState == ConnectionState.active) {
+                    if (snapshot.connectionState == ConnectionState.active) {
                       if (snapshot.data == null) {
                         return Text('data');
-                      } 
-                    }else{
-                      return Center(child: CircularProgressIndicator(),);
+                      }
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
                     }
                     var nome = snapshot.data['nome'];
                     var tel = snapshot.data['telefone'];
@@ -132,50 +105,6 @@ class _ScanQRState extends State<ScanQR> {
               Expanded(
                 child: SizedBox(),
               ),
-
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.all(15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                onPressed: () async {
-                  String codeSanner =
-                      await BarcodeScanner.scan(); //barcode scnner
-                  setState(() {
-                    qrCodeResult = codeSanner;
-                  });
-                },
-                child: Text(
-                  "Câmera",
-                  style: TextStyle(fontSize: 28),
-                ),
-              ),
-
-              //Button to scan QR code
-
-              // FlatButton(
-              //   padding: EdgeInsets.all(15),
-              //   onPressed: () async {
-              //     String codeSanner =
-              //         await BarcodeScanner.scan(); //barcode scnner
-              //     setState(() {
-              //       qrCodeResult = codeSanner;
-              //       print(codeSanner);
-              //       print(qrCodeResult);
-              //     });
-              //   },
-              //   child: Text(
-              //     "Câmera",
-              //     style: TextStyle(color: Colors.indigo[900], fontSize: 28),
-              //   ),
-              //   //Button having rounded rectangle border
-              //   shape: RoundedRectangleBorder(
-              //     side: BorderSide(color: Colors.indigo[900]),
-              //     borderRadius: BorderRadius.circular(20.0),
-              //   ),
-              // ),
             ],
           ),
         ));
