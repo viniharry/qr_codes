@@ -175,6 +175,7 @@ class _GenerateQRState extends State<GenerateQR> {
                           'servico': _servico.text,
                           'modelo': _modelo.text,
                           'valor': _valor.text,
+                          
                           'validade': _validade.text,
                         });
                         setState(() {

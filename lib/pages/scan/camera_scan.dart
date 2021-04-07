@@ -1,7 +1,7 @@
 import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:qr_code_app/scan_qr.dart';
+import 'package:qr_code_app/pages/scan/scan_qr.dart';
 
 class CameraScan extends StatefulWidget {
   CameraScan({

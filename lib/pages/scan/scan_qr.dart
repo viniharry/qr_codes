@@ -18,6 +18,12 @@ class _ScanQRState extends State<ScanQR> {
   Widget build(BuildContext context) {
     var snapshots = db.collection('qr_codes').doc(widget.id).snapshots();
 
+    var snap = db.collection('clientes')
+        .doc()
+        .collection('qr_codes')
+        .doc(widget.id)
+        .snapshots();
+
     return Scaffold(
         appBar: AppBar(
           title: Text("Resultado"),
