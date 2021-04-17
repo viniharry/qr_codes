@@ -42,7 +42,7 @@ class _EditSelectedQrState extends State<EditSelectedQr> {
         .snapshots();
     return Scaffold(
       appBar: AppBar(
-        title: Text("Gerar Qr Code"),
+        title: Text("Editar Qr Code"),
       ),
       body: Container(
         padding: EdgeInsets.all(20),
@@ -55,24 +55,9 @@ class _EditSelectedQrState extends State<EditSelectedQr> {
                     child: Text('Error: ${snapshot.error}'),
                   );
                 }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (snapshot.data == null) {
-                  return Text('null');
-                }
-                if (snapshot.connectionState == ConnectionState.active) {
-                  if (snapshot.data == null) {
-                    return Text('data');
-                  }
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
+               if(!snapshot.hasData){
+                 return Center(child: CircularProgressIndicator(),);
+               }
                 var serv = snapshot.data['servico'];
                 var modelo = snapshot.data['modelo'];
                 var valor = snapshot.data['valor'];
@@ -103,7 +88,9 @@ class _EditSelectedQrState extends State<EditSelectedQr> {
                           return null;
                         },
                         decoration: InputDecoration(
-                            hintText: "Modelo: ",
+                            hintText: "Modelo:",
+                            labelText: 'Modelo:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -116,6 +103,8 @@ class _EditSelectedQrState extends State<EditSelectedQr> {
                         },
                         decoration: InputDecoration(
                             hintText: "Serviço:",
+                            labelText: 'Serviço:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -129,6 +118,8 @@ class _EditSelectedQrState extends State<EditSelectedQr> {
                         },
                         decoration: InputDecoration(
                             hintText: "Valor:",
+                            labelText: 'Valor:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -143,6 +134,8 @@ class _EditSelectedQrState extends State<EditSelectedQr> {
                         },
                         decoration: InputDecoration(
                             hintText: "Validade:",
+                            labelText: 'Validade:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -169,29 +162,21 @@ class _EditSelectedQrState extends State<EditSelectedQr> {
                                 'validade': _validade.text,
                               });
 
+                              await FirebaseFirestore.instance
+                                  .collection('qr_codes')
+                                  .doc(widget.idQr)
+                                  .update({
+                                'servico': _servico.text,
+                                'modelo': _modelo.text,
+                                'valor': _valor.text,
+                                'validade': _validade.text,
+                              });
+
                               if (_isToastShown) {
                                 return;
                               }
                               _isToastShown = true;
-                              await showFlash(
-                                  context: context,
-                                  duration: Duration(seconds: 3),
-                                  builder: (ctx, ctrl) {
-                                    return Flash.dialog(
-                                        controller: ctrl,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8)),
-                                        backgroundColor: Colors.green,
-                                        alignment: Alignment.topCenter,
-                                        child: Padding(
-                                          padding: EdgeInsets.all(8),
-                                          child: Text(
-                                            'Salvo com sucesso!',
-                                            style: kPrimalStyle.copyWith(
-                                                color: Colors.white),
-                                          ),
-                                        ));
-                                  });
+                              _showAlert();
                               _isToastShown = false;
                             }
                           },
@@ -208,5 +193,25 @@ class _EditSelectedQrState extends State<EditSelectedQr> {
         ),
       ),
     );
+  }
+
+  Future _showAlert() async {
+    await showFlash(
+        context: context,
+        duration: Duration(seconds: 3),
+        builder: (ctx, ctrl) {
+          return Flash.dialog(
+              controller: ctrl,
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              backgroundColor: Colors.green,
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'Salvo com sucesso!',
+                  style: kPrimalStyle.copyWith(color: Colors.white),
+                ),
+              ));
+        });
   }
 }

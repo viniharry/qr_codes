@@ -18,7 +18,8 @@ class _ScanQRState extends State<ScanQR> {
   Widget build(BuildContext context) {
     var snapshots = db.collection('qr_codes').doc(widget.id).snapshots();
 
-    var snap = db.collection('clientes')
+    var snap = db
+        .collection('clientes')
         .doc()
         .collection('qr_codes')
         .doc(widget.id)
@@ -54,25 +55,14 @@ class _ScanQRState extends State<ScanQR> {
                         child: Text('Error: ${snapshot.error}'),
                       );
                     }
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    if(!snapshot.hasData || !snapshot.data.exists){
                       return Center(
-                        child: CircularProgressIndicator(),
+                        child:Text('Qr Code não foi encontrado'),
                       );
                     }
-                    if (snapshot.data == null) {
-                      return Text('null');
-                    }
-                    if (snapshot.connectionState == ConnectionState.active) {
-                      if (snapshot.data == null) {
-                        return Text('data');
-                      }
-                    } else {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
+                  
                     var nome = snapshot.data['nome'];
-                    var tel = snapshot.data['telefone'];
+                    var tel = snapshot.data['tel'];
                     var serv = snapshot.data['servico'];
                     var modelo = snapshot.data['modelo'];
                     var valor = snapshot.data['valor'];

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:qr_code_app/components/menu_drawer.dart';
+import 'package:qr_code_app/constants/fonts.dart';
 
 class AddCienteScreen extends StatefulWidget {
   AddCienteScreen({Key key}) : super(key: key);
@@ -19,6 +21,8 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
   final _numero = TextEditingController();
   final _cidade = TextEditingController();
   final _cpf = TextEditingController();
+
+  bool _isToastShown = false;
 
   GlobalKey<FormState> _form = GlobalKey<FormState>();
 
@@ -63,6 +67,8 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
                   },
                   decoration: InputDecoration(
                       hintText: "Nome*:",
+                      labelText: 'Nome*:',
+                      labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -73,6 +79,8 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       hintText: "CPF:",
+                      labelText: 'CPF:',
+                      labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -87,6 +95,8 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
                   },
                   decoration: InputDecoration(
                       hintText: "Telefone1*:",
+                      labelText: 'Telefone1*:',
+                      labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -97,24 +107,30 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                       hintText: "Telefone2:",
+                      labelText: 'Telefone2:',
+                      labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
                 SizedBox(height: 10),
                 TextFormField(
                   controller: _cidade,
-                   keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                       hintText: "Cidade:",
+                      labelText: 'Cidade:',
+                      labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
                 SizedBox(height: 10),
                 TextFormField(
                   controller: _bairro,
-                   keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                       hintText: "Bairro:",
+                      labelText: "Bairro:",
+                      labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -128,6 +144,8 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
                   },
                   decoration: InputDecoration(
                       hintText: "Rua*:",
+                      labelText: 'Rua*:',
+                      labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -141,6 +159,8 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
                   },
                   decoration: InputDecoration(
                       hintText: "Número*:",
+                      labelText: 'Número*:',
+                      labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -176,6 +196,13 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
                         _rua.clear();
                         _numero.clear();
                         _cpf.clear();
+
+                        if (_isToastShown) {
+                          return;
+                        }
+                        _isToastShown = true;
+                        _showAlert();
+                        _isToastShown = false;
                       }
                     },
                     child: Text(
@@ -190,5 +217,25 @@ class _AddCienteScreenState extends State<AddCienteScreen> {
         ),
       ),
     );
+  }
+
+  Future _showAlert() async {
+    await showFlash(
+        context: context,
+        duration: Duration(seconds: 3),
+        builder: (ctx, ctrl) {
+          return Flash.dialog(
+              controller: ctrl,
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              backgroundColor: Colors.green,
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'Salvo com sucesso!',
+                  style: kPrimalStyle.copyWith(color: Colors.white),
+                ),
+              ));
+        });
   }
 }

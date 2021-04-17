@@ -7,7 +7,7 @@ class QrModel {
   DateTime validade;
 
   QrModel(
-      {this.id = '',
+      {this.id,
       this.validade,
       this.nome,
       this.phone,
@@ -16,8 +16,6 @@ class QrModel {
 
   QrModel.map(dynamic qr) {
     this.id = qr['id'];
-    this.nome = qr['nome'];
-    this.phone = qr['telefone'];
     this.servico = qr['servico'];
     this.valor = qr['valor'];
     this.validade = qr['validade'];
@@ -28,8 +26,6 @@ class QrModel {
     if (id != null) {
       map['id'] = id;
     }
-    map['nome'] = nome;
-    map['telefone'] = phone;
     map['servico'] = servico;
     map['valor'] = valor;
     map['validade'] = validade;
@@ -39,8 +35,6 @@ class QrModel {
 
   QrModel.fromMap(Map<String, dynamic> map){
     this.id = map['id'];
-    this.nome = map['nome'];
-    this.phone = map['telefone'];
     this.servico = map['servico'];
     this.valor = map['valor'];
     this.validade = map['validade'];

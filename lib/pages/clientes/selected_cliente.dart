@@ -39,24 +39,12 @@ class _SelectedClienteState extends State<SelectedCliente> {
               child: Text('Error: ${snapshot.error}'),
             );
           }
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (!snapshot.hasData || !snapshot.data.exists) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: Text('Cliente não existe'),
             );
           }
-          if (snapshot.data == null) {
-            return Text('null');
-          }
-          if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.data == null) {
-              return Text('data');
-            }
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          var nome = snapshot.data['nome'];
+          var nomeCli = snapshot.data['nome'];
           var cpf = snapshot.data['cpf'];
           var tel1 = snapshot.data['telefone1'];
           var tel2 = snapshot.data['telefone2'];
@@ -67,7 +55,7 @@ class _SelectedClienteState extends State<SelectedCliente> {
           return Scaffold(
             drawer: MenuDrawer(),
             appBar: AppBar(
-              title: Text(nome),
+              title: Text(nomeCli),
               actions: [
                 IconButton(
                     icon: Icon(Icons.arrow_back_outlined),
@@ -86,7 +74,7 @@ class _SelectedClienteState extends State<SelectedCliente> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Nome: $nome',
+                              'Nome: $nomeCli',
                               style: kPrimalStyle,
                             ),
                           ),
@@ -103,15 +91,15 @@ class _SelectedClienteState extends State<SelectedCliente> {
                                 Text('Telefone1: $tel1', style: kPrimalStyle),
                                 UIHelper.horizontalSpace(20),
                                 InkWell(
-                                  onTap: ()async{
-                                    String tel = 'tel:+55$tel1';
-                                    if(await canLaunch(tel)){
-                                      await launch(tel);
-                                    }else{
-                                      throw "Não ligou para $tel";
-                                    }
-                                  },
-                                  child: Icon(Icons.call))
+                                    onTap: () async {
+                                      String tel = 'tel:+55$tel1';
+                                      if (await canLaunch(tel)) {
+                                        await launch(tel);
+                                      } else {
+                                        throw "Não ligou para $tel";
+                                      }
+                                    },
+                                    child: Icon(Icons.call))
                               ],
                             ),
                           ),
@@ -125,15 +113,15 @@ class _SelectedClienteState extends State<SelectedCliente> {
                                           style: kPrimalStyle),
                                       UIHelper.horizontalSpace(20),
                                       InkWell(
-                                  onTap: ()async{
-                                    String tel = 'tel:+55$tel2';
-                                    if(await canLaunch(tel)){
-                                      await launch(tel);
-                                    }else{
-                                      throw "Não ligou para $tel";
-                                    }
-                                  },
-                                  child: Icon(Icons.call))
+                                          onTap: () async {
+                                            String tel = 'tel:+55$tel2';
+                                            if (await canLaunch(tel)) {
+                                              await launch(tel);
+                                            } else {
+                                              throw "Não ligou para $tel";
+                                            }
+                                          },
+                                          child: Icon(Icons.call))
                                     ],
                                   ),
                                 ),
@@ -174,7 +162,7 @@ class _SelectedClienteState extends State<SelectedCliente> {
                                 onPressed: () {
                                   showDialog(
                                       context: context,
-                                      builder: (ctx) => DialogQr(
+                                      builder: (context) => DialogQr(
                                             title: 'Excluir Cliente',
                                             descreption:
                                                 'Deseja realmente excluir esse cliente?',
@@ -183,10 +171,10 @@ class _SelectedClienteState extends State<SelectedCliente> {
                                             okColor: primaryColor,
                                             cancelColor: colorRed,
                                             okFun: () async {
-                                              await FirebaseFirestore.instance
-                                                  .collection('clientes')
-                                                  .doc(widget.idCliente)
-                                                  .delete();
+                                              await _deletarCliente(context)
+                                                  .then((value) {
+                                                return Navigator.pushNamed(context, '/clientes_page');
+                                              });
                                             },
                                           ));
                                 },
@@ -263,6 +251,7 @@ class _SelectedClienteState extends State<SelectedCliente> {
                                                         idCliente:
                                                             widget.idCliente,
                                                         idQr: id,
+                                                        nomeCLiente: nomeCli,
                                                       ))),
                                           title: Text(nome),
                                           subtitle: Text(data),
@@ -286,6 +275,8 @@ class _SelectedClienteState extends State<SelectedCliente> {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => GenerateJob(
                                   idCliente: widget.idCliente,
+                                  nomeCliente: nomeCli,
+                                  telCliente: tel1,
                                 )));
                       },
                       child: Text(
@@ -299,5 +290,14 @@ class _SelectedClienteState extends State<SelectedCliente> {
             ),
           );
         });
+  }
+
+  Future _deletarCliente(BuildContext context) async {
+    FirebaseFirestore.instance
+        .collection('clientes')
+        .doc(widget.idCliente)
+        .delete();
+
+    return true;
   }
 }

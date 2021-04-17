@@ -1,12 +1,21 @@
+import 'dart:async';
+
 import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:qr_code_app/constants/fonts.dart';
 
 class GenerateJob extends StatefulWidget {
-  GenerateJob({Key key, @required this.idCliente}) : super(key: key);
+  GenerateJob(
+      {Key key, @required this.idCliente, this.nomeCliente, this.telCliente})
+      : super(key: key);
 
   final String idCliente;
+  final String nomeCliente;
+  final String telCliente;
 
   @override
   _GenerateJobState createState() => _GenerateJobState();
@@ -17,7 +26,14 @@ class _GenerateJobState extends State<GenerateJob> {
   final _servico = TextEditingController();
   final _valor = TextEditingController();
   final _validade = TextEditingController();
+
+DateTime dataAtual = new DateTime.now();
+  DateFormat formatter = new DateFormat('dd/MM/yyyy');
+  String dataFormatada;
+
   GlobalKey<FormState> _form = GlobalKey<FormState>();
+
+  bool _isToastShown = false;
 
   var maskDateFormatter = new MaskTextInputFormatter(
       mask: '##/##/##', filter: {"#": RegExp(r'[0-9]')});
@@ -26,8 +42,31 @@ class _GenerateJobState extends State<GenerateJob> {
 
   String qrCodeResult = "Nenhum Qr Code";
   String qrResult = 'Nenhum Qr Code';
+
+  Future _qrs() async {
+    await FirebaseFirestore.instance.collection('qr_codes').get().then((value) {
+      value.docs.forEach((element) {
+        return element.id;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    dataFormatada = formatter.format(dataAtual);
+    print(dataFormatada);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    Future snapshots =
+        FirebaseFirestore.instance.collection('qr_codes').get().then((value) {
+      value.docs.forEach((element) {
+        return element.id;
+      });
+    });
+    print(snapshots);
     return Scaffold(
       appBar: AppBar(
         title: Text("Gerar Qr Code"),
@@ -79,6 +118,9 @@ class _GenerateJobState extends State<GenerateJob> {
                   style: TextStyle(fontSize: 20),
                 ),
                 SizedBox(height: 10),
+                Text(widget.nomeCliente),
+                SizedBox(height: 10),
+                Text(widget.telCliente),
                 SizedBox(height: 10),
                 TextFormField(
                   controller: _modelo,
@@ -88,6 +130,8 @@ class _GenerateJobState extends State<GenerateJob> {
                   },
                   decoration: InputDecoration(
                       hintText: "Modelo:",
+                      labelText: 'Modelo:',
+                       labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -100,6 +144,8 @@ class _GenerateJobState extends State<GenerateJob> {
                   },
                   decoration: InputDecoration(
                       hintText: "Serviço:",
+                      labelText: 'Serviço:',
+                       labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -113,6 +159,8 @@ class _GenerateJobState extends State<GenerateJob> {
                   },
                   decoration: InputDecoration(
                       hintText: "Valor:",
+                      labelText: 'Valor:',
+                       labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -127,6 +175,8 @@ class _GenerateJobState extends State<GenerateJob> {
                   },
                   decoration: InputDecoration(
                       hintText: "Validade:",
+                      labelText: 'Validade:',
+                       labelStyle: kPrimalStyle,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10))),
                 ),
@@ -148,16 +198,38 @@ class _GenerateJobState extends State<GenerateJob> {
                             .doc(qrCodeResult)
                             .set({
                           'id': qrCodeResult,
+                          'nome': widget.nomeCliente,
+                          'tel': widget.telCliente,
                           'servico': _servico.text,
                           'modelo': _modelo.text,
                           'valor': _valor.text,
-                          'data': DateTime.now(),
+                          'data': dataFormatada,
                           'validade': _validade.text,
                         });
-                        setState(() {
-                          qrCodeResult = qrResult;
+
+                        await FirebaseFirestore.instance
+                            .collection('qr_codes')
+                            .doc(qrCodeResult)
+                            .set({
+                          'id': qrCodeResult,
+                          'nome': widget.nomeCliente,
+                          'tel': widget.telCliente,
+                          'servico': _servico.text,
+                          'modelo': _modelo.text,
+                          'valor': _valor.text,
+                          'data': dataFormatada,
+                          'validade': _validade.text,
                         });
 
+                        setState(() {
+                          qrCodeResult = '4';
+                        });
+                        if (_isToastShown) {
+                          return;
+                        }
+                        _isToastShown = true;
+                        _showAlert();
+                        _isToastShown = false;
                         _servico.clear();
                         _modelo.clear();
                         _valor.clear();
@@ -176,5 +248,25 @@ class _GenerateJobState extends State<GenerateJob> {
         ),
       ),
     );
+  }
+
+  Future _showAlert() async {
+    await showFlash(
+        context: context,
+        duration: Duration(seconds: 3),
+        builder: (ctx, ctrl) {
+          return Flash.dialog(
+              controller: ctrl,
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              backgroundColor: Colors.green,
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'Salvo com sucesso!',
+                  style: kPrimalStyle.copyWith(color: Colors.white),
+                ),
+              ));
+        });
   }
 }

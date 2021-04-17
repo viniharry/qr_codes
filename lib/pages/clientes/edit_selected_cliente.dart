@@ -40,7 +40,7 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
     return Scaffold(
       drawer: MenuDrawer(),
       appBar: AppBar(
-        title: Text('Cadastrar Clientes'),
+        title: Text('Editar cliente'),
         actions: [
           IconButton(
               icon: Icon(Icons.arrow_back_outlined),
@@ -58,21 +58,9 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                     child: Text('Error: ${snapshot.error}'),
                   );
                 }
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (!snapshot.hasData || !snapshot.data.exists) {
                   return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (snapshot.data == null) {
-                  return Text('null');
-                }
-                if (snapshot.connectionState == ConnectionState.active) {
-                  if (snapshot.data == null) {
-                    return Text('data');
-                  }
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator(),
+                    child: Text('Cliente não foi encontrado'),
                   );
                 }
                 var nome = snapshot.data['nome'];
@@ -114,6 +102,8 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                         },
                         decoration: InputDecoration(
                             hintText: "Nome*:",
+                            labelText: 'Nome*:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -124,6 +114,8 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             hintText: "CPF:",
+                            labelText: 'CPF:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -138,6 +130,8 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                         },
                         decoration: InputDecoration(
                             hintText: "Telefone1*:",
+                            labelText: 'Telefone1*:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -148,6 +142,8 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                             hintText: "Telefone2:",
+                             labelText: "Telefone2:",
+                             labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -157,6 +153,8 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
                             hintText: "Cidade:",
+                            labelText: 'Cidade:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -166,6 +164,8 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
                             hintText: "Bairro:",
+                            labelText: 'Bairro:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -179,6 +179,8 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                         },
                         decoration: InputDecoration(
                             hintText: "Rua*:",
+                            labelText: 'Rua*:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -192,6 +194,8 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                         },
                         decoration: InputDecoration(
                             hintText: "Número*:",
+                            labelText: 'Número*:',
+                            labelStyle: kPrimalStyle,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
                       ),
@@ -219,26 +223,12 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                                 'numero': _numero.text,
                                 'cpf': _cpf.text,
                               });
-                                if(_isToastShown){
-                                  return;
-                                }
-                                _isToastShown = true;
-                             await showFlash(
-                                context: context, 
-                                duration: Duration(seconds: 3),
-                                builder: (ctx, ctrl){
-                                  return Flash.dialog(
-                                    controller: ctrl, 
-                                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                                    backgroundColor: Colors.green,
-                                    alignment: Alignment.topCenter,
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: Text('Salvo com sucesso!', style: kPrimalStyle.copyWith(color: Colors.white),),
-                                      )
-                                    );
-                                });
-                             _isToastShown = false;
+                              if (_isToastShown) {
+                                return;
+                              }
+                              _isToastShown = true;
+                              _showAlert();
+                              _isToastShown = false;
                             }
 
                             //   if(_isToastShown){
@@ -246,19 +236,18 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
                             //     }
                             //     _isToastShown = true;
                             //  await showFlash(
-                            //     context: context, 
+                            //     context: context,
                             //     duration: Duration(seconds: 3),
                             //     builder: (ctx, ctrl){
                             //       return Flash.bar(
-                            //         controller: ctrl, 
+                            //         controller: ctrl,
                             //         borderRadius: BorderRadius.all(Radius.circular(8)),
                             //         backgroundColor: Colors.green,
-                                   
+
                             //         child: FlashBar(message: Text('Salvo com sucesso!', style: kPrimalStyle.copyWith(color: Colors.white),))
                             //         );
                             //     });
                             //  _isToastShown = false;
-                           
                           },
                           child: Text(
                             "Salvar",
@@ -273,5 +262,25 @@ class _EditSelectedClienteState extends State<EditSelectedCliente> {
         ),
       ),
     );
+  }
+
+  Future _showAlert() async {
+    await showFlash(
+        context: context,
+        duration: Duration(seconds: 3),
+        builder: (ctx, ctrl) {
+          return Flash.dialog(
+              controller: ctrl,
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              backgroundColor: Colors.green,
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'Salvo com sucesso!',
+                  style: kPrimalStyle.copyWith(color: Colors.white),
+                ),
+              ));
+        });
   }
 }
